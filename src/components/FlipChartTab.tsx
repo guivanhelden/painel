@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Edit, ChevronLeft, ChevronRight, Save, Trash2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Type, Plus, Palette, Smile } from 'lucide-react';
+import { Edit, ChevronLeft, ChevronRight, Save, Trash2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Type, Plus, Palette, Smile, Image, Move, Maximize, Minimize, AlignCenterHorizontal } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import { v4 as uuidv4 } from 'uuid';
 
 interface PageContent {
   text: string;
@@ -12,6 +13,13 @@ interface PageContent {
     textAlign: 'left' | 'center' | 'right';
     color: string;
   };
+  images: Array<{
+    id: string;
+    url: string;
+    width: string;
+    height: string;
+    position: 'left' | 'center' | 'right';
+  }>;
 }
 
 interface FlipChartTabProps {
@@ -47,12 +55,19 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
     color: '#000000'
   };
 
-  const [pages, setPages] = useState<PageContent[]>([{ text: '', style: { ...defaultStyle } }]);
+  const [pages, setPages] = useState<PageContent[]>([{ 
+    text: '', 
+    style: { ...defaultStyle },
+    images: []
+  }]);
   const [currentPage, setCurrentPage] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Notificar o App quando o modo de edição mudar
   useEffect(() => {
@@ -88,19 +103,21 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
                 fontSize: parsedContent.style?.fontSize || defaultStyle.fontSize,
                 textAlign: parsedContent.style?.textAlign || defaultStyle.textAlign,
                 color: parsedContent.style?.color || defaultStyle.color,
-              }
+              },
+              images: parsedContent.images || []
             };
           } catch (e) {
             // Se falhar, usar o conteúdo como texto plano
             return { 
               text: item.content || '', 
-              style: { ...defaultStyle }
+              style: { ...defaultStyle },
+              images: []
             };
           }
         });
         setPages(formattedPages);
       } else {
-        setPages([{ text: '', style: { ...defaultStyle } }]);
+        setPages([{ text: '', style: { ...defaultStyle }, images: [] }]);
       }
     } catch (error) {
       console.error('Erro ao carregar páginas:', error);
@@ -185,8 +202,119 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
     setShowEmojiPicker(false);
   };
 
+  // Manipulação de upload de imagens
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    try {
+      setIsUploading(true);
+      
+      // Para cada arquivo selecionado
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const filePath = `flipchart-images/${fileName}`;
+        
+        // Upload para o Supabase Storage
+        const { data, error } = await supabase.storage
+          .from('flipchart-media')
+          .upload(filePath, file);
+          
+        if (error) throw error;
+        
+        // Obter URL pública da imagem
+        const { data: publicUrlData } = supabase.storage
+          .from('flipchart-media')
+          .getPublicUrl(filePath);
+        
+        // Adicionar imagem à página atual
+        const newPages = [...pages];
+        
+        if (!newPages[currentPage].images) {
+          newPages[currentPage].images = [];
+        }
+        
+        // Criar um novo objeto de imagem com URL e dimensões padrão
+        newPages[currentPage].images.push({
+          id: fileName,
+          url: publicUrlData.publicUrl,
+          width: '50%',
+          height: 'auto',
+          position: 'center'
+        });
+        
+        setPages(newPages);
+      }
+    } catch (error) {
+      console.error('Erro ao fazer upload da imagem:', error);
+    } finally {
+      setIsUploading(false);
+      // Limpar o input de arquivo
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Atualizar tamanho de imagem
+  const handleImageResize = (imageId: string, sizeDelta: number) => {
+    const newPages = [...pages];
+    const imageIndex = newPages[currentPage].images.findIndex(img => img.id === imageId);
+    
+    if (imageIndex !== -1) {
+      // Obter largura atual e converter para número
+      const currentWidth = newPages[currentPage].images[imageIndex].width;
+      let widthValue = parseInt(currentWidth);
+      
+      if (isNaN(widthValue)) {
+        widthValue = 50; // Valor padrão se não conseguir converter
+      }
+      
+      // Calcular nova largura com limites mínimos e máximos
+      const newWidth = Math.max(10, Math.min(100, widthValue + sizeDelta));
+      
+      // Atualizar largura da imagem
+      newPages[currentPage].images[imageIndex].width = `${newWidth}%`;
+      setPages(newPages);
+    }
+  };
+
+  // Mudar posição da imagem
+  const handleImagePosition = (imageId: string, position: 'left' | 'center' | 'right') => {
+    const newPages = [...pages];
+    const imageIndex = newPages[currentPage].images.findIndex(img => img.id === imageId);
+    
+    if (imageIndex !== -1) {
+      newPages[currentPage].images[imageIndex].position = position;
+      setPages(newPages);
+    }
+  };
+
+  // Remover uma imagem
+  const removeImage = async (imageId: string) => {
+    if (!confirm('Tem certeza que deseja remover esta imagem?')) return;
+    
+    try {
+      // Remover do Storage
+      const { error } = await supabase.storage
+        .from('flipchart-media')
+        .remove([`flipchart-images/${imageId}`]);
+        
+      if (error) throw error;
+      
+      // Remover da página
+      const newPages = [...pages];
+      newPages[currentPage].images = newPages[currentPage].images.filter(img => img.id !== imageId);
+      setPages(newPages);
+    } catch (error) {
+      console.error('Erro ao remover imagem:', error);
+    }
+  };
+
   const addNewPage = () => {
-    setPages([...pages, { text: '', style: { ...defaultStyle } }]);
+    setPages([...pages, { text: '', style: { ...defaultStyle }, images: [] }]);
     setCurrentPage(pages.length);
     setIsEditing(true);
     setShowColorPicker(false);
@@ -195,7 +323,7 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
 
   const deletePage = () => {
     if (pages.length <= 1) {
-      setPages([{ text: '', style: { ...defaultStyle } }]);
+      setPages([{ text: '', style: { ...defaultStyle }, images: [] }]);
       setCurrentPage(0);
       return;
     }
@@ -384,6 +512,31 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
                   </div>
                 )}
               </div>
+
+              {/* Botão para fazer upload de imagens */}
+              <div className="relative">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  multiple
+                />
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className={`flex items-center p-1 rounded-lg ${
+                    isUploading 
+                      ? 'bg-gray-500 cursor-not-allowed' 
+                      : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                >
+                  <Image size={16} />
+                </motion.button>
+              </div>
             </div>
           </div>
         )}
@@ -401,12 +554,12 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
           }}
         >
           {isEditing ? (
-            <div className="h-full w-full">
+            <div className="h-full w-full flex flex-col">
               <textarea
                 ref={textareaRef}
                 value={pages[currentPage].text}
                 onChange={(e) => handleContentChange(e.target.value)}
-                className="w-full h-full p-2 lg:p-4 xl:p-6 text-black focus:outline-none resize-none"
+                className="w-full flex-grow p-2 lg:p-4 xl:p-6 text-black focus:outline-none resize-none"
                 placeholder="Digite seu conteúdo aqui..."
                 autoFocus
                 style={{
@@ -419,6 +572,111 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
                   border: 'none',
                 }}
               />
+              
+              {/* Container de imagens */}
+              {pages[currentPage].images && pages[currentPage].images.length > 0 && (
+                <div className="p-2 border-t border-gray-200">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Imagens (clique para ajustar)</h3>
+                  <div className="flex flex-wrap gap-4">
+                    {pages[currentPage].images.map((image) => (
+                      <div 
+                        key={image.id} 
+                        className={`relative group ${selectedImage === image.id ? 'ring-2 ring-blue-500' : ''}`}
+                        style={{ 
+                          width: '180px',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => setSelectedImage(image.id === selectedImage ? null : image.id)}
+                      >
+                        <div className="border border-gray-300 rounded overflow-hidden" style={{ maxHeight: '150px' }}>
+                          <img 
+                            src={image.url} 
+                            alt="Imagem do flipchart" 
+                            className="w-full h-auto object-contain"
+                          />
+                        </div>
+                        
+                        {/* Controles visíveis quando a imagem está selecionada */}
+                        {selectedImage === image.id && (
+                          <div className="absolute -bottom-10 left-0 right-0 bg-gray-800 rounded p-1 shadow-md flex justify-between">
+                            {/* Controles de posição */}
+                            <div className="flex gap-1">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleImagePosition(image.id, 'left');
+                                }}
+                                title="Alinhar à esquerda"
+                                className={`p-1 rounded ${image.position === 'left' ? 'bg-blue-500 text-white' : 'bg-gray-600 text-white hover:bg-gray-500'}`}
+                              >
+                                <AlignLeft size={12} />
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleImagePosition(image.id, 'center');
+                                }}
+                                title="Centralizar"
+                                className={`p-1 rounded ${image.position === 'center' ? 'bg-blue-500 text-white' : 'bg-gray-600 text-white hover:bg-gray-500'}`}
+                              >
+                                <AlignCenterHorizontal size={12} />
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleImagePosition(image.id, 'right');
+                                }}
+                                title="Alinhar à direita" 
+                                className={`p-1 rounded ${image.position === 'right' ? 'bg-blue-500 text-white' : 'bg-gray-600 text-white hover:bg-gray-500'}`}
+                              >
+                                <AlignRight size={12} />
+                              </button>
+                            </div>
+                            
+                            {/* Controles de tamanho */}
+                            <div className="flex gap-1">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleImageResize(image.id, -10);
+                                }}
+                                title="Diminuir tamanho"
+                                className="p-1 rounded bg-purple-500 text-white hover:bg-purple-600"
+                              >
+                                <Minimize size={12} />
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleImageResize(image.id, 10);
+                                }}
+                                title="Aumentar tamanho"
+                                className="p-1 rounded bg-purple-500 text-white hover:bg-purple-600"
+                              >
+                                <Maximize size={12} />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeImage(image.id);
+                                }}
+                                title="Remover imagem"
+                                className="p-1 rounded bg-red-500 text-white hover:bg-red-600"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="mt-1 text-xs text-gray-500 truncate">
+                          Tamanho: {image.width} - Posição: {image.position}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <motion.div 
@@ -429,7 +687,7 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
               transition={{ duration: 0.3 }}
             >
               <div
-                className="w-full h-full overflow-auto whitespace-pre-wrap break-words"
+                className="w-full overflow-auto whitespace-pre-wrap break-words"
                 style={{
                   fontWeight: pages[currentPage].style.fontWeight,
                   fontStyle: pages[currentPage].style.fontStyle,
@@ -440,6 +698,30 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
               >
                 {pages[currentPage].text || 'Página vazia. Clique em "Editar" para adicionar conteúdo.'}
               </div>
+              
+              {/* Exibir imagens no modo de visualização */}
+              {pages[currentPage].images && pages[currentPage].images.length > 0 && (
+                <div className="mt-4 flex flex-col gap-6">
+                  {pages[currentPage].images.map((image) => (
+                    <div 
+                      key={image.id} 
+                      className="border border-gray-300 rounded overflow-hidden"
+                      style={{ 
+                        width: image.width,
+                        margin: image.position === 'center' ? '0 auto' : 
+                               image.position === 'right' ? '0 0 0 auto' : '0 auto 0 0'
+                      }}
+                    >
+                      <img 
+                        src={image.url} 
+                        alt="Imagem do flipchart" 
+                        className="w-full h-auto object-contain"
+                        style={{ maxHeight: '500px' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
         </div>
