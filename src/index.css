@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: rgb(3, 7, 18);
+  background-image: 
+    radial-gradient(at 40% 20%, rgba(147, 51, 234, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(236, 72, 153, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(147, 51, 234, 0.1) 0px, transparent 50%);
+  background-attachment: fixed;
+  font-size: calc(14px + 0.5vw);
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0); /* Começa visível na posição inicial */
+  }
+  100% {
+    transform: translateX(-100%); /* Move o texto completamente para fora da tela à esquerda */
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.scroll-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.scroll-text {
+  display: flex; /* Torna os filhos elementos flexíveis para alinhamento contínuo */
+  justify-content: start; /* Alinha o texto ao início */
+  align-items: center; /* Centraliza verticalmente, se necessário */
+  white-space: nowrap; /* Impede quebras de linha */
+}
+
+.scroll-text-inner {
+  display: inline-block;
+  animation: scroll 120s linear infinite;
+  padding-right: 100%;
+}
+
+.animate-pulse-row {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* TV-specific styles */
+@media screen and (min-width: 1920px) {
+  body {
+    font-size: calc(16px + 1vw);
+  }
+}
+
+@media screen and (min-width: 2560px) {
+  body {
+    font-size: calc(18px + 1.5vw); /* Ajuste maior para televisores 4K */
+  }
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+td, th {
+  padding: 0.25rem 0.5rem; /* Espaçamento compacto */
+  line-height: 1.2;        /* Altura da linha ajustada */
+  white-space: nowrap;     /* Evita quebras de linha */
+  overflow: hidden;        /* Esconde texto que ultrapassa */
+  text-overflow: ellipsis; /* Adiciona "..." ao texto cortado */
+}
+
+tr {
+  height: auto;
+}
+
+td img {
+  height: 32px; /* Altura fixa para imagens */
+  width: auto;
+}
+@keyframes zoom {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.animate-zoom {
+  animation: zoom 4s infinite;
+}
+/* Contêiner principal dos rankings */
+.ranking-container {
+  display: flex;
+  flex-wrap: nowrap; /* Impede quebra de linha */
+  overflow-x: auto; /* Adiciona rolagem horizontal se necessário */
+  gap: 1rem; /* Espaçamento entre os cards */
+  justify-content: space-between; /* Espaçamento uniforme */
+}
+
+.ranking-card {
+  flex: 0 0 auto; /* Impede o encolhimento ou crescimento automático */
+  min-width: 150px; /* Largura mínima */
+  max-width: 300px; /* Largura máxima */
+  padding: 1rem;
+  text-align: center;
+  background: linear-gradient(to top, #ffc107, #ff9800); /* Gradiente no fundo */
+  border-radius: 0.5rem; /* Cantos arredondados */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra leve */
+}
+
+@media screen and (max-width: 768px) {
+  .ranking-container {
+    justify-content: start; /* Alinha os elementos no início */
+  }
+
+  .ranking-card {
+    min-width: 200px; /* Ajusta o tamanho mínimo dos cards */
+  }
+}
+
+
+/* Contador de Propostas (Proposal Counter) */
+.proposal-counter {
+  width: 100%; /* Usa toda a largura disponível no contêiner */
+  max-width: 400px; /* Limita o tamanho máximo do contador */
+  margin: 0 auto; /* Centraliza horizontalmente */
+  padding: 1rem; /* Espaçamento interno */
+  font-size: 1rem; /* Tamanho da fonte padrão */
+  overflow: hidden; /* Evita que o conteúdo transborde */
+  display: flex; /* Usa flexbox para alinhar os elementos */
+  justify-content: center; /* Centraliza o conteúdo horizontalmente */
+  align-items: center; /* Centraliza o conteúdo verticalmente */
+  border-radius: 0.5rem; /* Adiciona cantos arredondados */
+  background: linear-gradient(to bottom, #7c3aed, #ec4899); /* Gradiente no fundo */
+}
+
+@media screen and (min-width: 1920px) {
+  .proposal-counter {
+    font-size: 1.2rem; /* Aumenta a fonte em telas maiores para legibilidade */
+    max-width: 350px; /* Reduz o tamanho máximo para não ocupar muito espaço */
+  }
+}
+
+@media screen and (min-width: 2560px) {
+  .proposal-counter {
+    font-size: 1.5rem; /* Ajusta a fonte para telas muito grandes */
+    max-width: 300px; /* Reduz ainda mais o tamanho máximo */
+  }
+}
