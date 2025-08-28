@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SalesGoalTab } from './components/SalesGoalTab';
 import { FireworksEffect } from './components/FireworksEffect';
 import { FlipChartTab } from './components/FlipChartTab';
+import { useAutoReload } from './hooks/useAutoReload';
 
 
 export default function App() {
@@ -19,6 +20,13 @@ export default function App() {
   const [pauseRotation, setPauseRotation] = useState(false);
   // Referência para o intervalo de rotação
   const rotationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-reload apenas em produção, com intervalo configurável via env VITE_AUTO_RELOAD_MS
+  useAutoReload({
+    enabled: import.meta.env.PROD,
+    intervalMs: Number(import.meta.env.VITE_AUTO_RELOAD_MS ?? 600000),
+    pauseWhenHidden: true,
+  });
 
   useEffect(() => {
     const fetchData = async () => {

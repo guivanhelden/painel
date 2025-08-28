@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Target, TrendingUp, AlertCircle } from 'lucide-react';
 import { useSound } from '../hooks/useSound';
 import { CongratulationsMessage } from './CongratulationsMessage';
+import { CriticalAlert } from './CriticalAlert';
 
 const getProgressEmoji = (percentage: number) => {
   if (percentage >= 100) return '🥳🎉';
@@ -46,9 +47,13 @@ export function SalesGoalGauge({
   onGoalAchieved 
 }: SalesGoalGaugeProps) {
   const { playSound } = useSound();
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, latest => latest.toFixed(1));
   const [displayValue, setDisplayValue] = useState(0);
+  const warningPlayedRef = useRef(false);
+
+  const { daysRemaining, formattedDate } = getEndOfMonth();
+  const remaining = totalGoal - currentValue;
+  const remainingFormatted = remaining > 0 ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(remaining) : '';
+  const isCritical = daysRemaining <= 3 && percentageAchieved < 80;
 
   useEffect(() => {
     if (percentageAchieved >= 100) {
@@ -73,6 +78,14 @@ export function SalesGoalGauge({
       onGoalAchieved?.(false);
     }
   }, [percentageAchieved, onGoalAchieved, playSound]);
+
+  // Alerta sonoro quando entrar em estado crítico
+  useEffect(() => {
+    if (isCritical && !warningPlayedRef.current) {
+      playSound('warning');
+      warningPlayedRef.current = true;
+    }
+  }, [isCritical, playSound]);
 
   // Efeito para animar o número
   useEffect(() => {
@@ -141,14 +154,25 @@ export function SalesGoalGauge({
   };
 
   const message = getMessage();
-  const radius = 85;
-  const circumference = 2 * Math.PI * radius;
   const progress = (percentageAchieved > 100 ? 100 : percentageAchieved) / 100;
-  const strokeDashoffset = circumference * (1 - progress);
 
   return (
-    <div className="bg-gradient-to-br from-gray-900/90 to-gray-800/60 backdrop-blur-lg rounded-3xl p-6 lg:p-8 xl:p-10 shadow-2xl w-full max-w-3xl lg:max-w-5xl xl:max-w-7xl mx-auto border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300">
-      <div className="flex items-center gap-4 mb-6 lg:mb-8 xl:mb-10 bg-gradient-to-r from-purple-900/50 to-pink-900/30 p-4 lg:p-6 rounded-xl border border-purple-500/20 shadow-lg">
+    <motion.div
+      className={`bg-gradient-to-br from-gray-900/90 to-gray-800/60 backdrop-blur-lg rounded-3xl p-5 lg:p-6 xl:p-8 shadow-2xl w-full max-w-3xl lg:max-w-5xl xl:max-w-7xl mx-auto border transition-all duration-300 ${isCritical ? 'border-red-500/60' : 'border-purple-500/30 hover:border-purple-500/50'}`}
+      animate={isCritical ? { boxShadow: ['0 0 0px rgba(0,0,0,0)','0 0 40px rgba(239,68,68,0.35)','0 0 0px rgba(0,0,0,0)'] } : {}}
+      transition={isCritical ? { duration: 1.6, repeat: Infinity } : {}}
+    >
+      {isCritical && (
+        <div className="mb-4 lg:mb-6">
+          <CriticalAlert
+            daysRemaining={daysRemaining}
+            percentageAchieved={percentageAchieved}
+            remainingFormatted={remainingFormatted}
+            formattedDate={formattedDate}
+          />
+        </div>
+      )}
+      <div className="flex items-center gap-4 mb-4 lg:mb-6 xl:mb-8 bg-gradient-to-r from-purple-900/50 to-pink-900/30 p-4 lg:p-6 rounded-xl border border-purple-500/20 shadow-lg">
         <div className="bg-purple-500/20 p-3 lg:p-4 rounded-lg">
           <Target className="w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 text-purple-400" />
         </div>
@@ -157,9 +181,22 @@ export function SalesGoalGauge({
         </h3>
       </div>
 
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 xl:gap-16">
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-10 xl:gap-12">
         <div className="flex-1 w-full lg:w-auto flex justify-center">
-          <div className="relative w-72 h-72 lg:w-96 lg:h-96 xl:w-[32rem] xl:h-[32rem] transform hover:scale-105 transition-all duration-500 ease-out">
+          <motion.div
+            className="relative w-64 h-64 lg:w-80 lg:h-80 xl:w-[28rem] xl:h-[28rem] transform hover:scale-105 transition-all duration-500 ease-out"
+            animate={isCritical ? { scale: [1, 1.02, 1], rotate: [0, -0.4, 0.4, 0] } : {}}
+            transition={isCritical ? { duration: 1.8, repeat: Infinity } : {}}
+          >
+            {isCritical && (
+              <motion.div
+                aria-hidden
+                className="absolute -inset-4 rounded-full"
+                style={{ boxShadow: '0 0 120px 20px rgba(239, 68, 68, 0.18)' }}
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.6, repeat: Infinity }}
+              />
+            )}
             <svg className="w-full h-full" viewBox="0 0 200 200">
               {/* Círculo de fundo */}
               <circle
@@ -199,8 +236,8 @@ export function SalesGoalGauge({
                 fill="currentColor"
                 filter="url(#neonGlow)"
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 1 }}
+                animate={isCritical ? { opacity: [1, 0.7, 1], scale: [1, 1.04, 1] } : { opacity: 1, y: 0 }}
+                transition={isCritical ? { duration: 1.2, repeat: Infinity } : { delay: 0.5, duration: 1 }}
               >
                 {displayValue.toFixed(1)}%
               </motion.text>
@@ -271,14 +308,14 @@ export function SalesGoalGauge({
                 </linearGradient>
               </defs>
             </svg>
-          </div>
+          </motion.div>
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className={`flex-1 flex flex-col items-center gap-3 lg:gap-4 xl:gap-5 ${message.color} text-center bg-gray-900/40 p-4 lg:p-6 xl:p-8 rounded-2xl backdrop-blur-md border border-gray-700/40 hover:border-gray-600/50 transition-all duration-300 shadow-lg`}
+          className={`flex-1 flex flex-col items-center gap-3 lg:gap-4 xl:gap-5 ${message.color} text-center bg-gray-900/40 p-3 lg:p-5 xl:p-6 rounded-2xl backdrop-blur-md border border-gray-700/40 hover:border-gray-600/50 transition-all duration-300 shadow-lg`}
         >
           <div className="flex items-center gap-3 lg:gap-4 xl:gap-5">
             <div className="bg-current/20 p-3 lg:p-4 rounded-xl shadow-inner">
@@ -303,6 +340,6 @@ export function SalesGoalGauge({
           <CongratulationsMessage />
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

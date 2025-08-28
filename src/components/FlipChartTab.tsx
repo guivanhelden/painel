@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Edit, ChevronLeft, ChevronRight, Save, Trash2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Type, Plus, Palette, Smile, Image, Move, Maximize, Minimize, AlignCenterHorizontal } from 'lucide-react';
+import { Edit, ChevronLeft, ChevronRight, Save, Trash2, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Type, Plus, Palette, Smile, Image, Maximize, Minimize, AlignCenterHorizontal, Zap, Asterisk } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,6 +12,10 @@ interface PageContent {
     fontSize: string;
     textAlign: 'left' | 'center' | 'right';
     color: string;
+  };
+  effects?: {
+    glow?: boolean;
+    pulse?: boolean;
   };
   images: Array<{
     id: string;
@@ -52,12 +56,18 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
     fontStyle: 'normal' as const,
     fontSize: '24px',
     textAlign: 'left' as const,
-    color: '#000000'
+    color: '#FFFFFF'
+  };
+
+  const defaultEffects = {
+    glow: false,
+    pulse: false
   };
 
   const [pages, setPages] = useState<PageContent[]>([{ 
     text: '', 
     style: { ...defaultStyle },
+    effects: { ...defaultEffects },
     images: []
   }]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -104,6 +114,10 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
                 textAlign: parsedContent.style?.textAlign || defaultStyle.textAlign,
                 color: parsedContent.style?.color || defaultStyle.color,
               },
+              effects: {
+                glow: parsedContent.effects?.glow ?? defaultEffects.glow,
+                pulse: parsedContent.effects?.pulse ?? defaultEffects.pulse,
+              },
               images: parsedContent.images || []
             };
           } catch (e) {
@@ -111,13 +125,14 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
             return { 
               text: item.content || '', 
               style: { ...defaultStyle },
+              effects: { ...defaultEffects },
               images: []
             };
           }
         });
         setPages(formattedPages);
       } else {
-        setPages([{ text: '', style: { ...defaultStyle }, images: [] }]);
+        setPages([{ text: '', style: { ...defaultStyle }, effects: { ...defaultEffects }, images: [] }]);
       }
     } catch (error) {
       console.error('Erro ao carregar páginas:', error);
@@ -176,6 +191,20 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
     setPages(newPages);
   };
 
+  const toggleEffect = (effect: 'glow' | 'pulse') => {
+    const newPages = [...pages];
+    const current = newPages[currentPage];
+    const currentEffects = current.effects || { ...defaultEffects };
+    newPages[currentPage] = {
+      ...current,
+      effects: {
+        ...currentEffects,
+        [effect]: !currentEffects[effect]
+      }
+    };
+    setPages(newPages);
+  };
+
   const handleColorChange = (color: string) => {
     handleStyleChange('color', color);
     setShowColorPicker(false);
@@ -218,7 +247,7 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
         const filePath = `flipchart-images/${fileName}`;
         
         // Upload para o Supabase Storage
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from('flipchart-media')
           .upload(filePath, file);
           
@@ -314,7 +343,7 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
   };
 
   const addNewPage = () => {
-    setPages([...pages, { text: '', style: { ...defaultStyle }, images: [] }]);
+    setPages([...pages, { text: '', style: { ...defaultStyle }, effects: { ...defaultEffects }, images: [] }]);
     setCurrentPage(pages.length);
     setIsEditing(true);
     setShowColorPicker(false);
@@ -323,7 +352,7 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
 
   const deletePage = () => {
     if (pages.length <= 1) {
-      setPages([{ text: '', style: { ...defaultStyle }, images: [] }]);
+      setPages([{ text: '', style: { ...defaultStyle }, effects: { ...defaultEffects }, images: [] }]);
       setCurrentPage(0);
       return;
     }
@@ -447,6 +476,35 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
                 </motion.button>
               </div>
 
+              {/* Efeitos de texto: Glow e Pulse */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => toggleEffect('glow')}
+                className={`p-1 rounded-lg ${
+                  pages[currentPage].effects?.glow
+                    ? 'bg-purple-600'
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Glow"
+              >
+                <Zap size={16} />
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => toggleEffect('pulse')}
+                className={`p-1 rounded-lg ${
+                  pages[currentPage].effects?.pulse
+                    ? 'bg-purple-600'
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                title="Pulse"
+              >
+                <Asterisk size={16} />
+              </motion.button>
+
               {/* Botão para abrir o seletor de cores */}
               <div className="relative">
                 <motion.button
@@ -543,7 +601,7 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
 
         {/* Conteúdo */}
         <div 
-          className="flex-grow bg-white overflow-auto"
+          className="flex-grow bg-black overflow-auto"
           style={{ 
             height: isEditing 
               ? 'calc(100vh - 14rem)' 
@@ -559,7 +617,9 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
                 ref={textareaRef}
                 value={pages[currentPage].text}
                 onChange={(e) => handleContentChange(e.target.value)}
-                className="w-full flex-grow p-2 lg:p-4 xl:p-6 text-black focus:outline-none resize-none"
+                className={`w-full flex-grow p-2 lg:p-4 xl:p-6 text-white placeholder-gray-400 caret-white leading-relaxed focus:outline-none resize-none ${
+                  pages[currentPage].effects?.glow ? 'flipchart-glow' : ''
+                } ${pages[currentPage].effects?.pulse ? 'flipchart-pulse' : ''}`}
                 placeholder="Digite seu conteúdo aqui..."
                 autoFocus
                 style={{
@@ -568,15 +628,15 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
                   fontSize: pages[currentPage].style.fontSize,
                   textAlign: pages[currentPage].style.textAlign,
                   color: pages[currentPage].style.color,
-                  backgroundColor: 'white',
+                  backgroundColor: 'black',
                   border: 'none',
                 }}
               />
               
               {/* Container de imagens */}
               {pages[currentPage].images && pages[currentPage].images.length > 0 && (
-                <div className="p-2 border-t border-gray-200">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Imagens (clique para ajustar)</h3>
+                <div className="p-2 border-t border-gray-700">
+                  <h3 className="text-sm font-medium text-gray-200 mb-2">Imagens (clique para ajustar)</h3>
                   <div className="flex flex-wrap gap-4">
                     {pages[currentPage].images.map((image) => (
                       <div 
@@ -588,7 +648,7 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
                         }}
                         onClick={() => setSelectedImage(image.id === selectedImage ? null : image.id)}
                       >
-                        <div className="border border-gray-300 rounded overflow-hidden" style={{ maxHeight: '150px' }}>
+                        <div className="border border-gray-600 rounded overflow-hidden" style={{ maxHeight: '150px' }}>
                           <img 
                             src={image.url} 
                             alt="Imagem do flipchart" 
@@ -687,13 +747,15 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
               transition={{ duration: 0.3 }}
             >
               <div
-                className="w-full overflow-auto whitespace-pre-wrap break-words"
+                className={`w-full overflow-auto whitespace-pre-wrap break-words leading-relaxed ${
+                  pages[currentPage].effects?.glow ? 'flipchart-glow' : ''
+                } ${pages[currentPage].effects?.pulse ? 'flipchart-pulse' : ''}`}
                 style={{
                   fontWeight: pages[currentPage].style.fontWeight,
                   fontStyle: pages[currentPage].style.fontStyle,
                   fontSize: pages[currentPage].style.fontSize,
                   textAlign: pages[currentPage].style.textAlign,
-                  color: pages[currentPage].style.color,
+                  color: pages[currentPage].style.color || '#FFFFFF',
                 }}
               >
                 {pages[currentPage].text || 'Página vazia. Clique em "Editar" para adicionar conteúdo.'}
@@ -705,7 +767,7 @@ export const FlipChartTab = ({ onEditingChange }: FlipChartTabProps) => {
                   {pages[currentPage].images.map((image) => (
                     <div 
                       key={image.id} 
-                      className="border border-gray-300 rounded overflow-hidden"
+                      className="border border-gray-700 rounded overflow-hidden"
                       style={{ 
                         width: image.width,
                         margin: image.position === 'center' ? '0 auto' : 

@@ -21,6 +21,28 @@ body {
   font-size: calc(14px + 0.5vw);
 }
 
+/* ===== FlipChart Text Effects ===== */
+@keyframes flipchart-glow-cycle {
+  0% { text-shadow: 0 0 6px rgba(168, 85, 247, 0.4), 0 0 12px rgba(168, 85, 247, 0.25); }
+  50% { text-shadow: 0 0 10px rgba(236, 72, 153, 0.6), 0 0 20px rgba(236, 72, 153, 0.35); }
+  100% { text-shadow: 0 0 6px rgba(168, 85, 247, 0.4), 0 0 12px rgba(168, 85, 247, 0.25); }
+}
+
+.flipchart-glow {
+  animation: flipchart-glow-cycle 3s ease-in-out infinite;
+}
+
+@keyframes flipchart-pulse-strong {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.04); opacity: 0.9; }
+}
+
+.flipchart-pulse {
+  display: inline-block;
+  animation: flipchart-pulse-strong 2.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
 @keyframes scroll {
   0% {
     transform: translateX(0); /* Começa visível na posição inicial */
