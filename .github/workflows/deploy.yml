@@ -17,6 +17,28 @@ jobs:
         with:
           node-version: 20
 
+      - name: Validate required secrets
+        run: |
+          REQUIRED=(FTP_SERVER FTP_USERNAME FTP_PASSWORD FTP_DIR VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY)
+          missing=0
+          for name in "${REQUIRED[@]}"; do
+            if [ -z "${!name}" ]; then
+              echo "Missing secret: $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 1 ]; then
+            echo "One or more required secrets are missing. Configure them in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ secrets.FTP_DIR }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
       - name: Install dependencies
         run: npm ci
 
