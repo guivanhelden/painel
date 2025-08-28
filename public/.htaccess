@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteBase /
+
+# Não reescreve se for arquivo ou diretório físico
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# SPA fallback para index.html
+RewriteRule . /index.html [L]
+
+
