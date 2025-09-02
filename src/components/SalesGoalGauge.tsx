@@ -24,6 +24,7 @@ interface SalesGoalGaugeProps {
   totalGoal: number;
   currentValue: number;
   onGoalAchieved?: (show: boolean) => void;
+  previousPercentage?: number;
 }
 
 const getEndOfMonth = () => {
@@ -44,7 +45,8 @@ export function SalesGoalGauge({
   percentageAchieved, 
   totalGoal, 
   currentValue,
-  onGoalAchieved 
+  onGoalAchieved,
+  previousPercentage
 }: SalesGoalGaugeProps) {
   const { playSound } = useSound();
   const [displayValue, setDisplayValue] = useState(0);
@@ -183,11 +185,12 @@ export function SalesGoalGauge({
 
       <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-10 xl:gap-12">
         <div className="flex-1 w-full lg:w-auto flex justify-center">
-          <motion.div
-            className="relative w-64 h-64 lg:w-80 lg:h-80 xl:w-[28rem] xl:h-[28rem] transform hover:scale-105 transition-all duration-500 ease-out"
-            animate={isCritical ? { scale: [1, 1.02, 1], rotate: [0, -0.4, 0.4, 0] } : {}}
-            transition={isCritical ? { duration: 1.8, repeat: Infinity } : {}}
-          >
+          <div className="flex items-center gap-4">
+            <motion.div
+              className="relative w-64 h-64 lg:w-80 lg:h-80 xl:w-[28rem] xl:h-[28rem] transform hover:scale-105 transition-all duration-500 ease-out"
+              animate={isCritical ? { scale: [1, 1.02, 1], rotate: [0, -0.4, 0.4, 0] } : {}}
+              transition={isCritical ? { duration: 1.8, repeat: Infinity } : {}}
+            >
             {isCritical && (
               <motion.div
                 aria-hidden
@@ -241,6 +244,8 @@ export function SalesGoalGauge({
               >
                 {displayValue.toFixed(1)}%
               </motion.text>
+
+              
 
               {/* Emoji */}
               <motion.text
@@ -309,6 +314,8 @@ export function SalesGoalGauge({
               </defs>
             </svg>
           </motion.div>
+          
+          </div>
         </div>
 
         <motion.div
@@ -328,6 +335,18 @@ export function SalesGoalGauge({
           <p className="text-base lg:text-lg xl:text-xl opacity-80">
             {message.subText}
           </p>
+          {typeof previousPercentage === 'number' && (
+            <div className="mt-3 lg:mt-4 xl:mt-5 w-full flex justify-center">
+              <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl px-4 py-3 lg:px-5 lg:py-4 shadow-inner backdrop-blur-sm max-w-xs w-full flex flex-col items-center gap-1">
+                <div className="text-sm lg:text-base xl:text-lg text-gray-300 capitalize font-medium">
+                  % Meta mês anterior ({new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleDateString('pt-BR', { month: 'long' })})
+                </div>
+                <div className="text-2xl lg:text-3xl xl:text-4xl font-semibold text-gray-100">
+                  {previousPercentage.toFixed(1)}%
+                </div>
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
       

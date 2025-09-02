@@ -1,4 +1,4 @@
-import React from 'react';
+ 
 import { motion } from 'framer-motion';
 import { SalesGoalGauge } from './SalesGoalGauge';
 import { useSalesGoal } from '../hooks/useSalesGoal';
@@ -8,7 +8,7 @@ interface SalesGoalTabProps {
 }
 
 export function SalesGoalTab({ onGoalAchieved }: SalesGoalTabProps) {
-  const { salesGoalData, loading } = useSalesGoal();
+  const { salesGoalData, previousGoalData, loading } = useSalesGoal();
 
   if (loading) {
     return (
@@ -42,6 +42,7 @@ export function SalesGoalTab({ onGoalAchieved }: SalesGoalTabProps) {
           percentageAchieved={salesGoalData.percentual_atingido}
           totalGoal={salesGoalData.valor_meta}
           currentValue={salesGoalData.valor_realizado}
+          previousPercentage={previousGoalData?.percentual_atingido}
           onGoalAchieved={onGoalAchieved}
         />
       </motion.div>

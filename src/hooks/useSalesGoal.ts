@@ -11,6 +11,7 @@ interface SalesGoalData {
 
 export function useSalesGoal() {
   const [salesGoalData, setSalesGoalData] = useState<SalesGoalData | null>(null);
+  const [previousGoalData, setPreviousGoalData] = useState<Pick<SalesGoalData, 'ano' | 'mes' | 'percentual_atingido'> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,16 +20,30 @@ export function useSalesGoal() {
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
         const currentMonth = currentDate.getMonth() + 1;
+        const prevDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const prevYear = prevDate.getFullYear();
+        const prevMonth = prevDate.getMonth() + 1;
 
         const { data, error } = await supabase
           .from('vw_metas_venda_geral')
           .select('*')
           .eq('ano', currentYear)
           .eq('mes', currentMonth)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
         setSalesGoalData(data);
+
+        // Buscar mês anterior (somente percentual e identificação)
+        const { data: prevData, error: prevError } = await supabase
+          .from('vw_metas_venda_geral')
+          .select('ano, mes, percentual_atingido')
+          .eq('ano', prevYear)
+          .eq('mes', prevMonth)
+          .maybeSingle();
+
+        if (prevError) throw prevError;
+        setPreviousGoalData(prevData ?? null);
       } catch (error) {
         console.error('Error fetching sales goal data:', error);
       } finally {
@@ -51,5 +66,5 @@ export function useSalesGoal() {
     };
   }, []);
 
-  return { salesGoalData, loading };
+  return { salesGoalData, previousGoalData, loading };
 }
