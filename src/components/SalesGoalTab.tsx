@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { SalesGoalGauge } from './SalesGoalGauge';
 import { SalesGoalTV } from './SalesGoalTV';
 import { SalesGoalTVFallback } from './SalesGoalTVFallback';
-import { DebugTV } from './DebugTV';
 import { useSalesGoal } from '../hooks/useSalesGoal';
 import { useSalesGoalCombined } from '../hooks/useSalesGoalCombined';
 import { useTVLayout } from '../hooks/useTVLayout';
@@ -17,9 +16,6 @@ export function SalesGoalTab({ onGoalAchieved }: SalesGoalTabProps) {
   const { teamGoalsData, loading: teamLoading } = useSalesGoalCombined();
   const isTVLayout = useTVLayout();
 
-  // Debug temporário
-  console.log('TV Layout:', isTVLayout);
-  console.log('Team Goals Data:', teamGoalsData.length);
 
   if (loading || teamLoading) {
     return (
@@ -53,7 +49,6 @@ export function SalesGoalTab({ onGoalAchieved }: SalesGoalTabProps) {
   // Layout original para desktop/mobile
   return (
     <div className="flex items-center justify-center h-[calc(100vh-10rem)] lg:h-[calc(100vh-12rem)] xl:h-[calc(100vh-14rem)] py-4 lg:py-6 xl:py-8">
-      <DebugTV />
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

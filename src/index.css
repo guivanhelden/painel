@@ -92,8 +92,8 @@ body {
   
   /* Otimizações para Android TV Full HD */
   .team-grid-tv {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
   }
   
   .gauge-tv {
@@ -126,8 +126,8 @@ body {
   
   /* Otimizações para TV 4K */
   .team-grid-tv {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 2rem;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 1.5rem;
   }
   
   .gauge-tv {
@@ -183,7 +183,7 @@ body {
   }
   
   .team-grid-tv {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
   }
   

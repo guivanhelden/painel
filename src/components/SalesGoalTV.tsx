@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Target, TrendingUp, AlertCircle, Users } from 'lucide-react';
 import { TeamGoalsGrid } from './TeamGoalsGrid';
 import { TeamStatsSummary } from './TeamStatsSummary';
+import { ResolutionDebug } from './ResolutionDebug';
 import { useSalesGoalCombined } from '../hooks/useSalesGoalCombined';
 
 const getProgressEmoji = (percentage: number) => {
@@ -111,40 +112,41 @@ export function SalesGoalTV() {
   const progress = (salesGoalData.percentual_atingido > 100 ? 100 : salesGoalData.percentual_atingido) / 100;
 
   return (
-    <div className="text-white">
-      <div className="max-w-[95vw] mx-auto">
-        {/* Título da Seção */}
+    <div className="text-white h-[calc(100vh-12rem)] flex flex-col">
+      <ResolutionDebug />
+      <div className="max-w-[95vw] mx-auto flex-1 flex flex-col">
+        {/* Título da Seção - Compacto */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-center mb-8"
+          className="flex items-center justify-center mb-4"
         >
-          <h1 className="text-2xl lg:text-4xl xl:text-5xl text-tv-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-xl lg:text-2xl xl:text-3xl text-tv-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             Meta de Vendas - Equipes
           </h1>
         </motion.div>
 
-        {/* Meta Geral - Layout Otimizado para TV */}
+        {/* Meta Geral - Layout Compacto para TV */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className={`bg-gradient-to-br from-gray-900/90 to-gray-800/60 backdrop-blur-lg rounded-3xl p-6 lg:p-8 xl:p-10 shadow-2xl w-full mx-auto border transition-all duration-300 mb-8 ${isCritical ? 'border-red-500/60' : 'border-purple-500/30'}`}
+          className={`bg-gradient-to-br from-gray-900/90 to-gray-800/60 backdrop-blur-lg rounded-2xl p-4 lg:p-6 shadow-2xl w-full mx-auto border transition-all duration-300 mb-4 ${isCritical ? 'border-red-500/60' : 'border-purple-500/30'}`}
         >
-          {/* Header da Meta Geral */}
-          <div className="flex items-center justify-center gap-4 mb-6 lg:mb-8 bg-gradient-to-r from-purple-900/50 to-pink-900/30 p-4 lg:p-6 rounded-xl border border-purple-500/20 shadow-lg">
-            <div className="bg-purple-500/20 p-3 lg:p-4 rounded-lg">
-              <Target className="w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 text-purple-400" />
+          {/* Header da Meta Geral - Compacto */}
+          <div className="flex items-center justify-center gap-3 mb-4 bg-gradient-to-r from-purple-900/50 to-pink-900/30 p-3 rounded-xl border border-purple-500/20 shadow-lg">
+            <div className="bg-purple-500/20 p-2 rounded-lg">
+              <Target className="w-6 h-6 text-purple-400" />
             </div>
-            <h2 className="text-2xl lg:text-4xl xl:text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h2 className="text-lg lg:text-xl xl:text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Meta Geral
             </h2>
           </div>
 
-          {/* Gauge Principal - Otimizado para TV */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
+          {/* Gauge Principal - Compacto para TV */}
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-6">
             <div className="flex-1 flex justify-center">
-              <div className="relative w-80 h-80 lg:w-96 lg:h-96 xl:w-[28rem] xl:h-[28rem] gauge-tv performance-optimized">
+              <div className="relative w-48 h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64 gauge-tv performance-optimized">
                 <svg className="w-full h-full" viewBox="0 0 200 200">
                   {/* Círculo de fundo */}
                   <circle
@@ -180,7 +182,7 @@ export function SalesGoalTV() {
                     x="100"
                     y="80"
                     textAnchor="middle"
-                    className={`text-5xl lg:text-6xl xl:text-7xl font-black ${getColor()}`}
+                    className={`text-3xl lg:text-4xl xl:text-5xl font-black ${getColor()}`}
                     fill="currentColor"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -194,7 +196,7 @@ export function SalesGoalTV() {
                     x="100"
                     y="150"
                     textAnchor="middle"
-                    className="text-4xl lg:text-5xl xl:text-6xl"
+                    className="text-2xl lg:text-3xl xl:text-4xl"
                     fill="currentColor"
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -229,59 +231,34 @@ export function SalesGoalTV() {
               </div>
             </div>
 
-            {/* Informações da Meta */}
+            {/* Informações da Meta - Compacto */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className={`flex-1 flex flex-col items-center gap-4 lg:gap-6 ${message.color} text-center bg-gray-900/40 p-6 lg:p-8 rounded-2xl backdrop-blur-md border border-gray-700/40 shadow-lg`}
+              className={`flex-1 flex flex-col items-center gap-2 lg:gap-3 ${message.color} text-center bg-gray-900/40 p-4 rounded-xl backdrop-blur-md border border-gray-700/40 shadow-lg`}
             >
-              <div className="flex items-center gap-4 lg:gap-6">
-                <div className="bg-current/20 p-4 lg:p-5 rounded-xl shadow-inner">
-                  <message.icon className="w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12" />
+              <div className="flex items-center gap-2 lg:gap-3">
+                <div className="bg-current/20 p-2 rounded-lg shadow-inner">
+                  <message.icon className="w-5 h-5 lg:w-6 lg:h-6" />
                 </div>
-                <p className="text-xl lg:text-2xl xl:text-3xl font-bold">
+                <p className="text-sm lg:text-base xl:text-lg font-bold">
                   {message.text}
                 </p>
               </div>
-              <p className="text-base lg:text-lg xl:text-xl opacity-80">
+              <p className="text-xs lg:text-sm xl:text-base opacity-80">
                 {message.subText}
               </p>
               
-              {/* Valores */}
-              <div className="grid grid-cols-2 gap-4 w-full max-w-md">
-                <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl p-4 text-center">
-                  <div className="text-sm lg:text-base text-gray-300 mb-2">Realizado</div>
-                  <div className="text-lg lg:text-xl font-semibold text-white">
-                    {new Intl.NumberFormat('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0
-                    }).format(salesGoalData.valor_realizado)}
-                  </div>
-                </div>
-                <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl p-4 text-center">
-                  <div className="text-sm lg:text-base text-gray-300 mb-2">Meta</div>
-                  <div className="text-lg lg:text-xl font-semibold text-white">
-                    {new Intl.NumberFormat('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0
-                    }).format(salesGoalData.valor_meta)}
-                  </div>
-                </div>
-              </div>
 
-              {/* Comparação com mês anterior */}
+              {/* Comparação com mês anterior - Compacto */}
               {typeof previousGoalData === 'object' && previousGoalData && (
-                <div className="mt-4 w-full max-w-xs">
-                  <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl px-4 py-3 shadow-inner backdrop-blur-sm flex flex-col items-center gap-1">
-                    <div className="text-sm lg:text-base text-gray-300 capitalize font-medium">
-                      % Meta mês anterior ({new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleDateString('pt-BR', { month: 'long' })})
+                <div className="mt-2 w-full max-w-xs">
+                  <div className="bg-gray-900/50 border border-gray-700/50 rounded-lg px-2 py-1 shadow-inner backdrop-blur-sm flex flex-col items-center gap-1">
+                    <div className="text-xs text-gray-300 capitalize font-medium">
+                      % Mês anterior ({new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleDateString('pt-BR', { month: 'long' })})
                     </div>
-                    <div className="text-xl lg:text-2xl font-semibold text-gray-100">
+                    <div className="text-sm font-semibold text-gray-100">
                       {previousGoalData.percentual_atingido.toFixed(1)}%
                     </div>
                   </div>
@@ -291,36 +268,29 @@ export function SalesGoalTV() {
           </div>
         </motion.div>
 
-        {/* Seção das Equipes */}
+        {/* Seção das Equipes - Compacta */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="bg-gradient-to-br from-gray-900/90 to-gray-800/60 backdrop-blur-lg rounded-3xl p-6 lg:p-8 xl:p-10 shadow-2xl border border-purple-500/30"
+          className="bg-gradient-to-br from-gray-900/90 to-gray-800/60 backdrop-blur-lg rounded-2xl p-4 shadow-2xl border border-purple-500/30 flex-1 flex flex-col"
         >
-          {/* Header das Equipes */}
-          <div className="flex items-center justify-center gap-4 mb-6 lg:mb-8 bg-gradient-to-r from-blue-900/50 to-cyan-900/30 p-4 lg:p-6 rounded-xl border border-blue-500/20 shadow-lg">
-            <div className="bg-blue-500/20 p-3 lg:p-4 rounded-lg">
-              <Users className="w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 text-blue-400" />
+          {/* Header das Equipes - Compacto */}
+          <div className="flex items-center justify-center gap-3 mb-3 bg-gradient-to-r from-blue-900/50 to-cyan-900/30 p-2 rounded-xl border border-blue-500/20 shadow-lg">
+            <div className="bg-blue-500/20 p-2 rounded-lg">
+              <Users className="w-5 h-5 text-blue-400" />
             </div>
-            <h2 className="text-2xl lg:text-4xl xl:text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+            <h2 className="text-lg lg:text-xl xl:text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               Metas das Equipes
             </h2>
           </div>
 
-          {/* Grid das Equipes */}
-          <TeamGoalsGrid teamGoals={teamGoalsData} loading={loading} />
+          {/* Grid das Equipes - Compacto */}
+          <div className="flex-1 overflow-hidden">
+            <TeamGoalsGrid teamGoals={teamGoalsData} loading={loading} />
+          </div>
         </motion.div>
 
-        {/* Resumo das Estatísticas */}
-        <TeamStatsSummary 
-          teamGoals={teamGoalsData} 
-          generalGoal={salesGoalData ? {
-            percentual_atingido: salesGoalData.percentual_atingido,
-            valor_meta: salesGoalData.valor_meta,
-            valor_realizado: salesGoalData.valor_realizado
-          } : undefined}
-        />
       </div>
     </div>
   );
