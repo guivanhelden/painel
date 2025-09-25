@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Target, TrendingUp, AlertCircle, Users } from 'lucide-react';
 import { TeamGoalsGrid } from './TeamGoalsGrid';
-import { TeamStatsSummary } from './TeamStatsSummary';
 import { ResolutionDebug } from './ResolutionDebug';
 import { useSalesGoalCombined } from '../hooks/useSalesGoalCombined';
 
@@ -11,7 +10,7 @@ const getProgressEmoji = (percentage: number) => {
   if (percentage >= 80) return '🙂';
   if (percentage >= 70) return '🤔';
   if (percentage >= 60) return '🧐';
-  if (percentage >= 50) return '🧐';
+  if (percentage >= 50) return '🥸';
   if (percentage >= 40) return '😒';
   if (percentage >= 30) return '😊';
   if (percentage >= 20) return '😟';
@@ -121,10 +120,10 @@ export function SalesGoalTV() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className={`bg-gradient-to-br from-gray-900/90 to-gray-800/60 backdrop-blur-lg rounded-2xl p-4 lg:p-6 shadow-2xl w-full mx-auto border transition-all duration-300 mb-4 ${isCritical ? 'border-red-500/60' : 'border-purple-500/30'}`}
+          className={`bg-gradient-to-br from-gray-900/90 to-gray-800/60 backdrop-blur-lg rounded-2xl p-3 lg:p-4 shadow-2xl w-full mx-auto border transition-all duration-300 mb-4 ${isCritical ? 'border-red-500/60' : 'border-purple-500/30'}`}
         >
           {/* Header da Meta Geral - Compacto */}
-          <div className="flex items-center justify-center gap-3 mb-4 bg-gradient-to-r from-purple-900/50 to-pink-900/30 p-3 rounded-xl border border-purple-500/20 shadow-lg">
+          <div className="flex items-center justify-center gap-3 mb-3 bg-gradient-to-r from-purple-900/50 to-pink-900/30 p-2 rounded-xl border border-purple-500/20 shadow-lg">
             <div className="bg-purple-500/20 p-2 rounded-lg">
               <Target className="w-6 h-6 text-purple-400" />
             </div>
@@ -134,9 +133,9 @@ export function SalesGoalTV() {
           </div>
 
           {/* Gauge Principal - Compacto para TV */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-6">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-4">
             <div className="flex-1 flex justify-center">
-              <div className="relative w-48 h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64 gauge-tv performance-optimized">
+              <div className="relative w-32 h-32 lg:w-40 lg:h-40 xl:w-48 xl:h-48 gauge-tv performance-optimized">
                 <svg className="w-full h-full" viewBox="0 0 200 200">
                   {/* Círculo de fundo */}
                   <circle
@@ -172,7 +171,7 @@ export function SalesGoalTV() {
                     x="100"
                     y="80"
                     textAnchor="middle"
-                    className={`text-3xl lg:text-4xl xl:text-5xl font-black ${getColor()}`}
+                    className={`text-xl lg:text-2xl xl:text-3xl font-black ${getColor()}`}
                     fill="currentColor"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -186,7 +185,7 @@ export function SalesGoalTV() {
                     x="100"
                     y="150"
                     textAnchor="middle"
-                    className="text-2xl lg:text-3xl xl:text-4xl"
+                    className="text-lg lg:text-xl xl:text-2xl"
                     fill="currentColor"
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
