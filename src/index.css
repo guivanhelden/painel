@@ -89,11 +89,107 @@ body {
   body {
     font-size: calc(16px + 1vw);
   }
+  
+  /* Otimizações para Android TV Full HD */
+  .team-grid-tv {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .gauge-tv {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .card-tv {
+    padding: 1.5rem;
+    font-size: 1.1rem;
+  }
+  
+  .text-tv {
+    font-size: 1.2rem;
+  }
+  
+  .text-tv-lg {
+    font-size: 1.5rem;
+  }
+  
+  .text-tv-xl {
+    font-size: 2rem;
+  }
 }
 
 @media screen and (min-width: 2560px) {
   body {
     font-size: calc(18px + 1.5vw); /* Ajuste maior para televisores 4K */
+  }
+  
+  /* Otimizações para TV 4K */
+  .team-grid-tv {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 2rem;
+  }
+  
+  .gauge-tv {
+    width: 400px;
+    height: 400px;
+  }
+  
+  .card-tv {
+    padding: 2rem;
+    font-size: 1.3rem;
+  }
+  
+  .text-tv {
+    font-size: 1.5rem;
+  }
+  
+  .text-tv-lg {
+    font-size: 2rem;
+  }
+  
+  .text-tv-xl {
+    font-size: 2.5rem;
+  }
+}
+
+/* Otimizações de Performance para Android TV */
+.performance-optimized {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Reduzir animações em dispositivos com baixa performance */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Otimizações de memória */
+.memory-optimized {
+  contain: layout style paint;
+  content-visibility: auto;
+}
+
+/* Estilos específicos para Android TV Stick */
+@media screen and (max-width: 1920px) and (min-width: 1280px) {
+  .android-tv-optimized {
+    font-size: 1.1rem;
+  }
+  
+  .team-grid-tv {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  
+  .gauge-tv {
+    width: 250px;
+    height: 250px;
   }
 }
 

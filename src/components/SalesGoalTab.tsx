@@ -1,7 +1,12 @@
  
 import { motion } from 'framer-motion';
 import { SalesGoalGauge } from './SalesGoalGauge';
+import { SalesGoalTV } from './SalesGoalTV';
+import { SalesGoalTVFallback } from './SalesGoalTVFallback';
+import { DebugTV } from './DebugTV';
 import { useSalesGoal } from '../hooks/useSalesGoal';
+import { useSalesGoalCombined } from '../hooks/useSalesGoalCombined';
+import { useTVLayout } from '../hooks/useTVLayout';
 
 interface SalesGoalTabProps {
   onGoalAchieved: (show: boolean) => void;
@@ -9,8 +14,14 @@ interface SalesGoalTabProps {
 
 export function SalesGoalTab({ onGoalAchieved }: SalesGoalTabProps) {
   const { salesGoalData, previousGoalData, loading } = useSalesGoal();
+  const { teamGoalsData, loading: teamLoading } = useSalesGoalCombined();
+  const isTVLayout = useTVLayout();
 
-  if (loading) {
+  // Debug temporário
+  console.log('TV Layout:', isTVLayout);
+  console.log('Team Goals Data:', teamGoalsData.length);
+
+  if (loading || teamLoading) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
         <motion.div
@@ -30,8 +41,19 @@ export function SalesGoalTab({ onGoalAchieved }: SalesGoalTabProps) {
     );
   }
 
+  // Usar layout otimizado para TV
+  if (isTVLayout) {
+    if (teamGoalsData.length > 0) {
+      return <SalesGoalTV />;
+    } else {
+      return <SalesGoalTVFallback onGoalAchieved={onGoalAchieved} />;
+    }
+  }
+
+  // Layout original para desktop/mobile
   return (
     <div className="flex items-center justify-center h-[calc(100vh-10rem)] lg:h-[calc(100vh-12rem)] xl:h-[calc(100vh-14rem)] py-4 lg:py-6 xl:py-8">
+      <DebugTV />
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
