@@ -7,15 +7,15 @@ import { useSalesGoalCombined } from '../hooks/useSalesGoalCombined';
 
 const getProgressEmoji = (percentage: number) => {
   if (percentage >= 100) return '🥳🎉';
-  if (percentage >= 90) return '🤗';
-  if (percentage >= 80) return '😍';
-  if (percentage >= 70) return '🤩';
-  if (percentage >= 60) return '😆';
-  if (percentage >= 50) return '😁';
-  if (percentage >= 40) return '😃';
+  if (percentage >= 90) return '🥰';
+  if (percentage >= 80) return '🙂';
+  if (percentage >= 70) return '🤔';
+  if (percentage >= 60) return '🧐';
+  if (percentage >= 50) return '🧐';
+  if (percentage >= 40) return '😒';
   if (percentage >= 30) return '😊';
-  if (percentage >= 20) return '😏';
-  if (percentage >= 10) return '😐';
+  if (percentage >= 20) return '😟';
+  if (percentage >= 10) return '😫';
   return '😵‍💫';
 };
 
@@ -115,16 +115,6 @@ export function SalesGoalTV() {
     <div className="text-white h-[calc(100vh-12rem)] flex flex-col">
       <ResolutionDebug />
       <div className="max-w-[95vw] mx-auto flex-1 flex flex-col">
-        {/* Título da Seção - Compacto */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-center mb-4"
-        >
-          <h1 className="text-xl lg:text-2xl xl:text-3xl text-tv-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Meta de Vendas - Equipes
-          </h1>
-        </motion.div>
 
         {/* Meta Geral - Layout Compacto para TV */}
         <motion.div
