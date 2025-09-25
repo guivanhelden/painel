@@ -9,6 +9,7 @@ interface TeamGoalData {
   valor_meta: number;
   valor_realizado: number;
   equipe_id?: string;
+  equipe?: string;
 }
 
 interface TeamGoalsGridProps {
@@ -72,7 +73,7 @@ export function TeamGoalsGrid({ teamGoals, loading = false }: TeamGoalsGridProps
         
         return (
           <motion.div
-            key={`${team.supervisor || 'unknown'}-${team.ano}-${team.mes}-${index}`}
+            key={`${team.supervisor || team.equipe || 'unknown'}-${team.ano}-${team.mes}-${index}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
@@ -84,7 +85,7 @@ export function TeamGoalsGrid({ teamGoals, loading = false }: TeamGoalsGridProps
                 <PerformanceIcon className="w-4 h-4" />
               </div>
               <h3 className="text-sm font-bold text-white truncate">
-                {team.supervisor || 'Equipe Sem Nome'}
+                {team.supervisor || team.equipe || 'Equipe Sem Nome'}
               </h3>
             </div>
 

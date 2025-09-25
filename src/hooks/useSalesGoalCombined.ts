@@ -17,6 +17,7 @@ interface TeamGoalData {
   valor_meta: number;
   valor_realizado: number;
   equipe_id?: string;
+  equipe?: string;
 }
 
 export function useSalesGoalCombined() {
