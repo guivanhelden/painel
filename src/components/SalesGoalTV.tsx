@@ -286,7 +286,7 @@ export function SalesGoalTV() {
           </div>
 
           {/* Grid das Equipes - Compacto */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto">
             <TeamGoalsGrid teamGoals={teamGoalsData} loading={loading} />
           </div>
         </motion.div>
