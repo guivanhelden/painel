@@ -65,7 +65,7 @@ export function TeamGoalsGrid({ teamGoals, loading = false }: TeamGoalsGridProps
   }
 
   return (
-    <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 team-grid-tv gap-3 lg:gap-4 max-h-80 overflow-y-auto">
+    <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 team-grid-tv gap-3 lg:gap-4 max-h-80 overflow-y-auto">
       {teamGoals.map((team, index) => {
         const PerformanceIcon = getPerformanceIcon(team.percentual_atingido);
         const gradientClass = getPerformanceColor(team.percentual_atingido);
