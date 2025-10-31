@@ -60,7 +60,7 @@ export function Fireworks() {
             ease: [0.42, 0, 0.58, 1],
             repeat: Infinity,
             delay: i * 0.05,
-            repeatDelay: Math.random() * 0.3
+            repeatDelay: Math.random() * 0.4
           }}
         />
       ))}
